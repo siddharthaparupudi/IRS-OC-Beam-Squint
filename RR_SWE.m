@@ -157,8 +157,6 @@ for index = 1:length(K_set)
         user = mod(t,K)+1;
         schedule(t) = user;
 
-       
-
         % BF phase configuration for the 1st path (i.e LoS path) for the scheduled user
         % which subcarrier to transmit
         % n = N/2; % centre subcarrier
@@ -200,7 +198,7 @@ for index = 1:length(K_set)
 
 
         % add the rate achieved by the scheduled user
-        Rate = sum(W/N*log2(1 + (P/(N*No))*abs(H_k(user,:)).^2));
+        Rate = Rate + sum(W/N*log2(1 + (P/(N*No))*abs(H_k(user,:)).^2));
 
         % average the channel over time (only add the channels for the scheduled user in each time slot)
         H_averaged = H_averaged + abs(H_k(user,:)).^2./T;
