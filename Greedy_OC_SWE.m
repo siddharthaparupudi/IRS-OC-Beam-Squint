@@ -17,7 +17,7 @@ pathloss_IRS_users = 4;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1,10,100,200,500,700,1000];
+K_set = [1000];
 
 rates = zeros(length(K_set),1);
 
@@ -62,7 +62,7 @@ for index = 1:length(K_set)
     % channel gains of the BS-IRS channel
     alpha = zeros(L1,1);
     for l1 = 1:L1
-        alpha(l1) = 1e3/(sqrt(d_BS_IRS))^(pathloss_BS_IRS)*exp(-l1/2);
+        alpha(l1) = 1e6*sqrt(exprnd(1))/(sqrt(d_BS_IRS))^(pathloss_BS_IRS)*exp(-l1/2);
     end
 
     % channel gains of the IRS-user channels
@@ -70,7 +70,7 @@ for index = 1:length(K_set)
     for k = 1:K
         beta{k} = zeros(L2_K(k),1);
         for l2 = 1:L2_K(k)
-            beta{k}(l2) = 1e6/(sqrt(d_IRS_users(k)))^(pathloss_IRS_users)*exp(-l2/2);
+            beta{k}(l2) = 1e3*sqrt(exprnd(1))/(sqrt(d_IRS_users(k)))^(pathloss_IRS_users)*exp(-l2/2);
         end
     end
 
@@ -125,7 +125,7 @@ for index = 1:length(K_set)
     N = 64;
 
     % the number of time slots
-    T = 3;
+    T = 10;
 
     % the set of scheduled users
     schedule = zeros(N,T);
