@@ -1,0 +1,1 @@
+Due to Beam-Squint effect, the channel frequency response is a sinc function. This leads to a lot of useless bandwidth. We try to improve it by communicating opportunistically by exploiting this effect and scheduling multiple users on each OFDM subcarrier to maximise gain on each subcarrier while also improve overall throughput of the system.
