@@ -17,7 +17,7 @@ pathloss_IRS_users = 0;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [2000];
+K_set = [1,10,100,200,500,700,1000];
 
 rates = zeros(length(K_set),1);
 
@@ -122,10 +122,10 @@ for index = 1:length(K_set)
 
 
     % number of OFDM subcarriers
-    N = 128;
+    N = 64;
 
     % the number of time slots
-    T = 500;
+    T = 3;
 
     % the set of scheduled users
     schedule = zeros(N,T);
@@ -250,6 +250,14 @@ for index = 1:length(K_set)
 
 end
 
+% plot variation of average rate with number of users
+figure;
+semilogx(K_set, rates);
+title('Average rate vs. Number of users');
+xlabel('Number of users');
+ylabel('Average rate (bps)');
+
+% function to calculate the array response vector of the IRS
 function ULA = ULA_array(M, L1, L2, theta)
     ULA = zeros(M, L1, L2);
     factor = -1i*2*pi*(0:M-1).';
@@ -258,8 +266,3 @@ function ULA = ULA_array(M, L1, L2, theta)
     end
 end
 
-% figure;
-% semilogx(K_set, rates);
-% title('Average rate vs. Number of users');
-% xlabel('Number of users');
-% ylabel('Average rate (bps)');

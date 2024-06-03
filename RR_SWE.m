@@ -17,7 +17,7 @@ pathloss_IRS_users = 0;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [20];
+K_set = [1,10,100,200,500,700,1000];
 
 rates = zeros(length(K_set),1);
 
@@ -123,10 +123,10 @@ for index = 1:length(K_set)
 
 
     % number of OFDM subcarriers
-    N = 32;
+    N = 128;
 
     % the number of time slots
-    T = 5;
+    T = 50;
 
     % the set of scheduled users
     schedule = zeros(T);
@@ -143,7 +143,10 @@ for index = 1:length(K_set)
     % the average channel gain squared
     average_gain = zeros(T,1);
 
-    H_averaged = zeros(1,length(f));
+    H_averaged = zeros(1,N);
+
+    % jain index
+    jain_index_slot_gain = zeros(T,1);
 
     for t = 1:T
         
@@ -202,6 +205,15 @@ for index = 1:length(K_set)
         % average the channel over time (only add the channels for the scheduled user in each time slot)
         H_averaged = H_averaged + abs(H_k(user,:)).^2./T;
 
+        gain_2_slot = 0;
+        gain_4_slot = 0;
+        for i = 1:N
+            gain_2_slot = gain_2_slot + abs(H_k(user,i))^2;
+            gain_4_slot = gain_4_slot + abs(H_k(user,i))^4;
+        end
+
+        jain_index_slot_gain(t) = gain_2_slot^2/(N*gain_4_slot);
+
         centre_subcarrier_gain = abs(H_k(user,N/2))^2;
         sum_gain = 0;
         count = 0;
@@ -222,7 +234,7 @@ for index = 1:length(K_set)
     % Plot magnitude and phase
     figure;
     plot(f, abs(H_averaged(1,:)));
-    title('Magnitude of H');
+    title('Magnitude of |H|^2');
     xlabel('Frequency (Hz)');
     ylabel('Average channel gain for scheduled user');
 
@@ -236,15 +248,22 @@ for index = 1:length(K_set)
     average_gain_squared = sum(average_gain)/T;
     fprintf('The average channel gain squared is on centre subcarriers %f\n', average_gain_squared);
 
+    % The Jain's index
+    jain_index_gain = sum(jain_index_slot_gain)/T;
+    fprintf('The Jain''s index for the gain is %f\n', jain_index_gain);
+
+    jain_average_index = sum(H_averaged)^2/(N*sum(H_averaged.^2));
+    fprintf('The Jain''s index for the average gain is %f\n', jain_average_index);
+
     rates(index) = Rate;
 
 end
 
-% figure;
-% semilogx(K_set, rates);
-% title('Variation of Rate with Number of Users');
-% xlabel('Number of Users');
-% ylabel('Rate');
+figure;
+semilogx(K_set, rates);
+title('Variation of Rate with Number of Users');
+xlabel('Number of Users');
+ylabel('Rate');
 
 function ULA = ULA_array(M, L1, L2, theta)
     ULA = zeros(M, L1, L2);
