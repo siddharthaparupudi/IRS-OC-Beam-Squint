@@ -141,7 +141,7 @@ for index = 1:length(K_set)
     No = 1e-9;
 
     % the average channel gain squared
-    gain_squared = 0;
+    average_gain = zeros(T,1);
 
     H_averaged = zeros(1,length(f));
 
@@ -202,9 +202,19 @@ for index = 1:length(K_set)
         % average the channel over time (only add the channels for the scheduled user in each time slot)
         H_averaged = H_averaged + abs(H_k(user,:)).^2./T;
 
-        for i = N/2
-            gain_squared = gain_squared + abs(H_k(user,i))^2;
+        centre_subcarrier_gain = abs(H_k(user,N/2))^2;
+        sum_gain = 0;
+        count = 0;
+
+        for i = 1:N
+            subcarrier_gain = abs(H_k(user, i))^2;
+            if subcarrier_gain >= 0.9 * centre_subcarrier_gain
+                sum_gain = sum_gain + subcarrier_gain;
+                count = count + 1;
+            end
         end
+
+        average_gain(t) = sum_gain / count;
     
         fprintf('Iteration %d\n', t);
     end
@@ -223,8 +233,8 @@ for index = 1:length(K_set)
     fprintf('The average rate in the system is %f\n', Rate);
 
     % The average channel gain squared
-    gain_squared = gain_squared/(T);
-    fprintf('The average channel gain squared is on centre subcarriers %f\n', gain_squared);
+    average_gain_squared = sum(average_gain)/T;
+    fprintf('The average channel gain squared is on centre subcarriers %f\n', average_gain_squared);
 
     rates(index) = Rate;
 
