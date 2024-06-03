@@ -9,15 +9,15 @@ lamda_c = 3e8/f_c;
 d = lamda_c/2;
 
 % pathloss exponents
-pathloss_BS_IRS = 0;
-pathloss_IRS_users = 0;
+pathloss_BS_IRS = 2;
+pathloss_IRS_users = 4;
 
 % BS is at (500,0)
 % 1st IRS element is at (0,276.725)
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1,10,100,200,500,700,1000];
+K_set = [1000];
 
 rates = zeros(length(K_set),1);
 
@@ -63,7 +63,7 @@ for index = 1:length(K_set)
     % channel gains of the BS-IRS channel
     alpha = zeros(L1,1);
     for l1 = 1:L1
-        alpha(l1) = 1e3/(sqrt(d_BS_IRS))^(pathloss_BS_IRS)*exp(-l1/2);
+        alpha(l1) = 1e6*exprnd(1)/(sqrt(d_BS_IRS))^(pathloss_BS_IRS)*exp(-l1/2);
     end
 
     % channel gains of the IRS-user channels
@@ -71,7 +71,7 @@ for index = 1:length(K_set)
     for k = 1:K
         beta{k} = zeros(L2_K(k),1);
         for l2 = 1:L2_K(k)
-            beta{k}(l2) = 1e6/(sqrt(d_IRS_users(k)))^(pathloss_IRS_users)*exp(-l2/2);
+            beta{k}(l2) = 1e3*exprnd(1)/(sqrt(d_IRS_users(k)))^(pathloss_IRS_users)*exp(-l2/2);
         end
     end
 
@@ -123,10 +123,10 @@ for index = 1:length(K_set)
 
 
     % number of OFDM subcarriers
-    N = 128;
+    N = 64;
 
     % the number of time slots
-    T = 50;
+    T = 500;
 
     % the set of scheduled users
     schedule = zeros(T);
@@ -161,21 +161,21 @@ for index = 1:length(K_set)
 
         % BF phase configuration for the 1st path (i.e LoS path) for the scheduled user
         % which subcarrier to transmit
-        n = N/2; % centre subcarrier
-        for i = 1:M
-            phi(i) = 4*pi*(i-1)*(psi_C{user}(1,1)) + 2*pi*(i-1)*(n*W/N - W/2)*(psi_C{user}(1,1))/f_c;
-        end
+        % n = N/2; % centre subcarrier
+        % for i = 1:M
+        %     phi(i) = 4*pi*(i-1)*(psi_C{user}(1,1)) + 2*pi*(i-1)*(n*W/N - W/2)*(psi_C{user}(1,1))/f_c;
+        % end
 
         % Beamforming IRS configuration when considering all paths (LoS + nLoS) for the scheduled user
-        % for m = 1:M
-        %     c = 0;
-        %     for l1 = 1:L1
-        %         for l2 = 1:L2_K(user)
-        %             c = c + gamma_C{user}(l1,l2)*exp(-1i*2*pi*(tau_C{user}(l1,l2))*f_c)*exp(-1i*2*pi*(m-1)*psi_C{user}(l1,l2)*(1+f_c/f_c));
-        %         end
-        %     end
-        %     phi(m) = - angle(c);
-        % end
+        for m = 1:M
+            c = 0;
+            for l1 = 1:L1
+                for l2 = 1:L2_K(user)
+                    c = c + gamma_C{user}(l1,l2)*exp(-1i*2*pi*(tau_C{user}(l1,l2))*f_c)*exp(-1i*2*pi*(m-1)*psi_C{user}(l1,l2)*(1+f_c/f_c));
+                end
+            end
+            phi(m) = - angle(c);
+        end
 
         % the array response vector of the IRS
         array_vector = zeros(M,1);
@@ -259,11 +259,11 @@ for index = 1:length(K_set)
 
 end
 
-figure;
-semilogx(K_set, rates);
-title('Variation of Rate with Number of Users');
-xlabel('Number of Users');
-ylabel('Rate');
+% figure;
+% semilogx(K_set, rates);
+% title('Variation of Rate with Number of Users');
+% xlabel('Number of Users');
+% ylabel('Rate');
 
 function ULA = ULA_array(M, L1, L2, theta)
     ULA = zeros(M, L1, L2);

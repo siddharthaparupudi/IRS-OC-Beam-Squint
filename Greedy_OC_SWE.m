@@ -9,8 +9,8 @@ lamda_c = 3e8/f_c;
 d = lamda_c/2;
 
 % pathloss exponents
-pathloss_BS_IRS = 0;
-pathloss_IRS_users = 0;
+pathloss_BS_IRS = 2;
+pathloss_IRS_users = 4;
 
 % BS is at (500,0)
 % 1st IRS element is at (0,276.725)
