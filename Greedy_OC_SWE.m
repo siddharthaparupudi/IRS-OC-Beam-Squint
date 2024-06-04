@@ -241,7 +241,7 @@ for index = 1:length(K_set)
     fprintf('Average rate: %f\n', avg_rate);
 
     rates(index) = avg_rate;
-    max_rates(index) = W*log2(1+(P/(No*N))*((M^2*1e9)/(e*d_BS_IRS^2*d_IRS_users(1)^4))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
+    max_rates(index) = W*log2(1+(P/(No*N))*((M^2*1e9)/(exp(1)*d_BS_IRS^2*d_IRS_users(1)^4))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
 
     gain_squared = gain_squared/(T*N);
     fprintf('Average gain squared on each subcarrier: %f\n', gain_squared);
