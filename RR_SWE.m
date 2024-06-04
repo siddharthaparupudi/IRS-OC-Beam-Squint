@@ -58,12 +58,15 @@ for index = 1:length(K_set)
         end
     end
 
+    
     % channel gains
+    P_alpha = 1e6;
+    P_beta = 1e3;
 
     % channel gains of the BS-IRS channel
     alpha = zeros(L1,1);
     for l1 = 1:L1
-        alpha(l1) = 1e6*sqrt(exprnd(1))/(sqrt(d_BS_IRS))^(pathloss_BS_IRS)*exp(-l1/2);
+        alpha(l1) = sqrt((P_alpha*exprnd(1)*exp(-l1/2))/((d_BS_IRS)^(pathloss_BS_IRS)));
     end
 
     % channel gains of the IRS-user channels
@@ -71,7 +74,7 @@ for index = 1:length(K_set)
     for k = 1:K
         beta{k} = zeros(L2_K(k),1);
         for l2 = 1:L2_K(k)
-            beta{k}(l2) = 1e3*sqrt(exprnd(1))/(sqrt(d_IRS_users(k)))^(pathloss_IRS_users)*exp(-l2/2);
+            beta{k}(l2) = sqrt((P_beta*exprnd(1)*exp(-l2/2))/(d_IRS_users(k))^(pathloss_IRS_users));
         end
     end
 
