@@ -65,7 +65,7 @@ for index = 1:length(K_set)
     % channel gains of the BS-IRS channel
     alpha = zeros(L1,1);
     for l1 = 1:L1
-        alpha(l1) = P_alpha*sqrt(exprnd(1))/(sqrt(d_BS_IRS))^(pathloss_BS_IRS)*exp(-l1/2);
+        alpha(l1) = sqrt((P_alpha*exprnd(1)*exp(-l1/2))/((d_BS_IRS)^(pathloss_BS_IRS)));
     end
 
     % channel gains of the IRS-user channels
@@ -73,7 +73,7 @@ for index = 1:length(K_set)
     for k = 1:K
         beta{k} = zeros(L2_K(k),1);
         for l2 = 1:L2_K(k)
-            beta{k}(l2) = P_beta*sqrt(exprnd(1))/(sqrt(d_IRS_users(k)))^(pathloss_IRS_users)*exp(-l2/2);
+            beta{k}(l2) = sqrt((P_beta*exprnd(1)*exp(-l2/2))/(d_IRS_users(k))^(pathloss_IRS_users));
         end
     end
 
@@ -97,7 +97,7 @@ for index = 1:length(K_set)
 
     % channel delays for BS-IRS channel
     tau_TR = zeros(L1,1);
-    tau_TR(1) = d_BS_IRS/3e8;
+    tau_TR(1) = 0;
     for l1 = 2:L1
         tau_TR(l1) = unifrnd(tau_TR(1), tau_TR(1) + tau_offset);
     end
@@ -106,7 +106,7 @@ for index = 1:length(K_set)
     tau_RR = cell(K,1);
     for k = 1:K
         tau_RR{k} = zeros(L2_K(k),1);
-        tau_RR{k}(1) = d_IRS_users(k)/3e8;
+        tau_RR{k}(1) = 0;
         for l2 = 2:L2_K(k)
             tau_RR{k}(l2) = unifrnd(tau_RR{k}(1), tau_RR{k}(1) + tau_offset);
         end
@@ -125,7 +125,7 @@ for index = 1:length(K_set)
 
 
     % number of OFDM subcarriers
-    N = 64;
+    N = 128;
 
     % the number of time slots
     T = 3;
@@ -240,8 +240,9 @@ for index = 1:length(K_set)
     avg_rate = sum(Rate_total)/T;
     fprintf('Average rate: %f\n', avg_rate);
 
+    d_IRS_UE = min(d_IRS_users);
     rates(index) = avg_rate;
-    max_rates(index) = W*log2(1+(P/(No*N))*((M^2*1e9)/(exp(1)*d_BS_IRS^2*d_IRS_users(1)^4))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
+    max_rates(index) = W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta)/(exp(1)*d_BS_IRS^2*d_IRS_UE^4))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
 
     gain_squared = gain_squared/(T*N);
     fprintf('Average gain squared on each subcarrier: %f\n', gain_squared);
