@@ -1,6 +1,6 @@
 
 % number of IRS elements
-M = 1024;
+M = 256;
 
 % carrier frequency, bandwidth, wavelength and distance between IRS elements
 f_c = 30e9;
@@ -60,7 +60,7 @@ for index = 1:length(K_set)
 
     
     % channel gains
-    P_alpha = 1e6;
+    P_alpha = 1e9;
     P_beta = 1e3;
 
     % channel gains of the BS-IRS channel

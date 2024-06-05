@@ -1,6 +1,6 @@
 
 % number of IRS elements
-M = 1024;
+M = 256;
 
 % carrier frequency, bandwidth, wavelength and distance between IRS elements
 f_c = 30e9;
@@ -17,7 +17,7 @@ pathloss_IRS_users = 4;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1,10,50,100,250,500,750,1000];
+K_set = [1,10,100,250];
 
 rates = zeros(length(K_set),1);
 max_rates = zeros(length(K_set),1);
@@ -59,7 +59,7 @@ for index = 1:length(K_set)
     end
 
     % channel gains
-    P_alpha = 1e6;
+    P_alpha = 1e9;
     P_beta = 1e3;
 
     % channel gains of the BS-IRS channel
@@ -128,7 +128,7 @@ for index = 1:length(K_set)
     N = 128;
 
     % the number of time slots
-    T = 3;
+    T = 500;
 
     % the set of scheduled users
     schedule = zeros(N,T);
@@ -192,6 +192,16 @@ for index = 1:length(K_set)
             end
         end
 
+        % H_k_2 = zeros(K,N);
+        % for k = 1:K
+        %     matrix = ULA_array(M, L1, L2_K(k), psi_C{k}*(1+f/f_c)); 
+        %     inner_product = squeeze(sum(bsxfun(@times, array_vector, matrix), 1));
+        %     H_k_2(k,:) = sum(bsxfun(@times, gamma_C{k}.*inner_product, exp(-1i*2*pi*f*(tau_C{k}))), 'all');      
+        % end
+
+        % H_k
+        % H_k_2
+
         % at each time slot, schedule the user with best channel conditions on each subcarrier
 
         for i = 1:N
@@ -242,7 +252,7 @@ for index = 1:length(K_set)
 
     d_IRS_UE = min(d_IRS_users);
     rates(index) = avg_rate;
-    max_rates(index) = W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta)/(exp(1)*d_BS_IRS^2*d_IRS_UE^4))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
+    max_rates(index) = W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta)/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
 
     gain_squared = gain_squared/(T*N);
     fprintf('Average gain squared on each subcarrier: %f\n', gain_squared);
