@@ -17,7 +17,7 @@ pathloss_IRS_users = 4;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1,10,100,250];
+K_set = [400,800];
 
 rates = zeros(length(K_set),1);
 max_rates = zeros(length(K_set),1);
@@ -60,7 +60,7 @@ for index = 1:length(K_set)
 
     % channel gains
     P_alpha = 1e9;
-    P_beta = 1e3;
+    P_beta = 1e6;
 
     % channel gains of the BS-IRS channel
     alpha = zeros(L1,1);
@@ -128,7 +128,7 @@ for index = 1:length(K_set)
     N = 128;
 
     % the number of time slots
-    T = 500;
+    T = 200;
 
     % the set of scheduled users
     schedule = zeros(N,T);
@@ -253,6 +253,7 @@ for index = 1:length(K_set)
     d_IRS_UE = min(d_IRS_users);
     rates(index) = avg_rate;
     max_rates(index) = W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta)/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
+    max_rates(index) = W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta)/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
 
     gain_squared = gain_squared/(T*N);
     fprintf('Average gain squared on each subcarrier: %f\n', gain_squared);
@@ -273,6 +274,8 @@ figure;
 semilogx(K_set, rates);
 hold on;
 semilogx(K_set, max_rates);
+xlim([min(K_set), max(K_set)]);
+ylim([0, max(max_rates)+2e9]);
 title('Average rate vs. Number of users');
 xlabel('Number of users');
 ylabel('Average rate (bps)');

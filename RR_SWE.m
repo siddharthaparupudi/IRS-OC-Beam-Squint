@@ -61,7 +61,7 @@ for index = 1:length(K_set)
     
     % channel gains
     P_alpha = 1e9;
-    P_beta = 1e3;
+    P_beta = 1e6;
 
     % channel gains of the BS-IRS channel
     alpha = zeros(L1,1);
