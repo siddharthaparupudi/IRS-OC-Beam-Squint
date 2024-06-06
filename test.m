@@ -1,6 +1,5 @@
-a = randn(2,3);
-a
-a_repeated = repmat(a, [1,1,4]);
-
-size(a_repeated)
-a_repeated
+a = [1+1i,2,3];
+a.'
+size(a)
+reshape(a, [3,1]);
+size(a)

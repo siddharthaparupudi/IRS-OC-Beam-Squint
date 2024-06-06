@@ -1,7 +1,7 @@
 
 M = 256;    % number of IRS elements
 N = 128;    % number of OFDM subcarriers
-T = 2;      % the number of time slots
+T = 2000;      % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
@@ -26,7 +26,7 @@ pathloss_IRS_users = 4;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [200,650];
+K_set = [2,10,100,250,500,750,1000,1500,2000,2500];
 
 rates = zeros(length(K_set),1);         % the average rate acheived
 max_rates = zeros(length(K_set),1);     % the maximum rate achievable (BF on all subcarriers)
@@ -147,7 +147,7 @@ for index = 1:length(K_set)
     jain_index_slot_gain = zeros(T,1);
 
     for t = 1:T
-
+        tic
         % generate random phase shifts for the IRS
         a = unifrnd(-1,1);
         phi = 4*pi*a*(0:M-1);
@@ -159,50 +159,11 @@ for index = 1:length(K_set)
         end
      
         % calculate the channel conditions at each subcarrier
-    
-        % H_k_brute_force = zeros(K,N);
-        % H_k_mat = zeros(K,N);
 
-        % % channel calculation with brute force
-        % tic
-        % for k = 1:K
-        %     for i = 1:N
-        %         h_k = 0;
-        %         for m = 1:M
-        %             for l1 = 1:L1
-        %                 for l2 = 1:L2
-        %                     h_k = h_k + gamma_C(l1,l2,k)*exp(1i*phi(m))*exp(-1i*2*pi*(m-1)*(psi_C(l1,l2,k))*(1+f(i)/f_c))*exp(-1i*2*pi*f(i)*tau_C(l1,l2,k));
-        %                 end
-        %             end
-        %         end
-        %         H_k_brute_force(k,i) = h_k;
-        %     end
-        % end
-        % toc
-
-        
-        % % channel calculation with matrix multiplication
-        % tic
-        % for k = 1:K
-        %     for i = 1:length(f) 
-        %         matrix = ULA_array(M, L1, L2, psi_C(:,:,k)*(1+f(i)/f_c)); 
-        %         inner_product = reshape(squeeze(sum(array_configuration .* matrix, 1)), size(gamma_C(:,:,k)));
-        %         H_k_mat(k,i) = sum(sum(gamma_C(:,:,k).*inner_product.*exp(-1i*2*pi*f(i)*(tau_C(:,:,k)))));      
-        %     end
-        % end
-        % toc
-
- 
-        % vectorized channel calculation
-        tic
         inner_product = squeeze(sum(array_configuration.*array_response,1));
         H_k = squeeze(sum(sum(gamma_C.*inner_product.*exp(-1i*2*pi*bsxfun(@times, tau_C, reshape(f, [1,1,1,N]))),1),2));
-        toc
-
-        % H_k_brute_force
-        % H_k_mat
-        % H_k
-
+ 
+  
         % at each time slot, schedule the user with best channel conditions on each subcarrier
         for i = 1:N
             % Find the user-subcarrier pair with the highest metric
@@ -215,6 +176,7 @@ for index = 1:length(K_set)
             Rate(i,t) = W/N*log2(1 + (P/(No*N))*abs(best_gain)^2);
             
         end
+        
 
         % Calculate the total rate in each time slot (sum of rates across all subcarriers)
         Rate_total(t) = sum(Rate(:,t));
@@ -234,7 +196,8 @@ for index = 1:length(K_set)
 
         jain_index_slot(t) = sum(Rate(:,t))^2/(N*sum(Rate(:,t).^2));
         jain_index_slot_gain(t) = gain_2_slot^2/(N*gain_4_slot);
-
+        
+        toc
         fprintf('Iteration %d\n', t);
     end
 
@@ -248,7 +211,7 @@ for index = 1:length(K_set)
     avg_rate = sum(Rate_total)/T;
     fprintf('Average rate: %f\n', avg_rate);
 
-    d_IRS_UE = min(d_IRS_users);
+    d_IRS_UE = mean(d_IRS_users);
     rates(index) = avg_rate;
     max_rates(index) = W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta)/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
 
@@ -268,11 +231,11 @@ end
 
 % plot variation of average rate with number of users
 figure;
-semilogx(K_set, rates);
+semilogx(K_set, rates,"-o");
 hold on;
-semilogx(K_set, max_rates);
+semilogx(K_set, max_rates,"-*");
 xlim([min(K_set), max(K_set)]);
-ylim([0, max(max_rates)]);
+ylim([0, 1.2*max(max_rates)]);
 title('Average rate vs. Number of users');
 xlabel('Number of users');
 ylabel('Average rate (bps)');
