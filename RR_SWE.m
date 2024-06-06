@@ -37,8 +37,8 @@ for index = 1:length(K_set)
     % number of paths
     % L1 = number of paths from BS to IRS
     % L2_K(k) = number of paths from IRS to kth user
-    L1 = 2;
-    L2_K = randi([2,4],K,1);
+    L1 = 1;
+    L2_K = randi([1],K,1);
 
 
     % resolvable anglebook of the IRS
@@ -126,7 +126,7 @@ for index = 1:length(K_set)
 
 
     % number of OFDM subcarriers
-    N = 64;
+    N = 128;
 
     % the number of time slots
     T = 500;
