@@ -1,7 +1,7 @@
 
-M = 512;    % number of IRS elements
-N = 128;    % number of OFDM subcarriers
-T = 1;      % the number of time slots
+M = 256;    % number of IRS elements
+N = 256;    % number of OFDM subcarriers
+T = 10;      % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
@@ -29,7 +29,7 @@ eps = 0.178/M;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1,10,100,1000,10000];
+K_set = [1,5,10,50,100,500,1000,5000,10000];
 
 rates = zeros(length(K_set),1);         % the average rate acheived
 max_rates = zeros(length(K_set),1);     % the maximum rate achievable (BF on all subcarriers)
@@ -184,6 +184,8 @@ for index = 1:length(K_set)
     % Plot magnitude and phase
     figure;
     plot(f, H_averaged);
+    xlim([min(f), max(f)]);
+    ylim([0, 1.2*max(H_averaged)]);
     title('Magnitude of |H|^2');
     xlabel('Frequency (Hz)');
     ylabel('Average channel gain at each subcarrier'); 
