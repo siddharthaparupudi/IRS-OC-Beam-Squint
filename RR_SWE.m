@@ -1,6 +1,6 @@
-
+rng(0);
 % number of IRS elements
-M = 256;
+M = 512;
 
 % carrier frequency, bandwidth, wavelength and distance between IRS elements
 f_c = 30e9;
@@ -17,7 +17,7 @@ pathloss_IRS_users = 4;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1000];
+K_set = [1];
 
 rates = zeros(length(K_set),1);
 
@@ -37,8 +37,8 @@ for index = 1:length(K_set)
     % number of paths
     % L1 = number of paths from BS to IRS
     % L2_K(k) = number of paths from IRS to kth user
-    L1 = 1;
-    L2_K = randi([1],K,1);
+    L1 = 2;
+    L2_K = randi([3],K,1);
 
 
     % resolvable anglebook of the IRS
@@ -129,7 +129,7 @@ for index = 1:length(K_set)
     N = 128;
 
     % the number of time slots
-    T = 500;
+    T = 1;
 
     % the set of scheduled users
     schedule = zeros(T);
@@ -238,8 +238,6 @@ for index = 1:length(K_set)
     title('Magnitude of |H|^2');
     xlabel('Frequency (Hz)');
     ylabel('Average channel gain for scheduled user');
-
-
 
     % The average rate
     Rate = Rate/T;

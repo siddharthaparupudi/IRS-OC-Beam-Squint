@@ -1,7 +1,7 @@
 
-M = 256;    % number of IRS elements
+M = 512;    % number of IRS elements
 N = 128;    % number of OFDM subcarriers
-T = 2000;      % the number of time slots
+T = 100;      % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
@@ -21,15 +21,15 @@ f = linspace(f_c-W/2, f_c+W/2, N);
 pathloss_BS_IRS = 2;
 pathloss_IRS_users = 4;
 
-% the tolerance for the Beam Squint effect
-eps = 0.001;
+% the tolerance for the Beam Squint effect (90% threshold)
+eps = 0.178/M;
 
 % BS is at (500,0)
 % 1st IRS element is at (0,276.725)
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [2,10,100,250,500,750,1000,1500,2000,2500];
+K_set = [2,10,50,100];
 
 rates = zeros(length(K_set),1);         % the average rate acheived
 max_rates = zeros(length(K_set),1);     % the maximum rate achievable (BF on all subcarriers)
@@ -214,7 +214,7 @@ for index = 1:length(K_set)
     avg_rate = sum(Rate_total)/T;
     fprintf('Average rate: %f\n', avg_rate);
 
-    d_IRS_UE = mean(d_IRS_users);
+    d_IRS_UE = min(d_IRS_users);
     rates(index) = avg_rate;
     max_rates(index) = W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta*(sinc(M*eps))^2)/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
 

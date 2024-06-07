@@ -17,7 +17,7 @@ lamda_c = 3e8/f_c;
 d = lamda_c/2;
 
 % angles of arrival and departure
-DoA = pi/3;
+DoA = pi/2;
 DoD = 0;
 
 % normalized angles of arrival and departure
@@ -55,7 +55,7 @@ for t = 1:T
     % end
 
     % which subcarrier to transmit
-    n = 64;
+    n = 30;
     for i = 1:M
         phi(i) = 4*pi*(i-1)*(psi_1_C) + 2*pi*(i-1)*(n*W/N - W/2)*(psi_1_C)/f_c;
     end
