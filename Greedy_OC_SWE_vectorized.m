@@ -21,6 +21,9 @@ f = linspace(f_c-W/2, f_c+W/2, N);
 pathloss_BS_IRS = 2;
 pathloss_IRS_users = 4;
 
+% the tolerance for the Beam Squint effect
+eps = 0.001;
+
 % BS is at (500,0)
 % 1st IRS element is at (0,276.725)
 % 1024th IRS element is at (0,276.725+1023*d)
@@ -213,7 +216,7 @@ for index = 1:length(K_set)
 
     d_IRS_UE = mean(d_IRS_users);
     rates(index) = avg_rate;
-    max_rates(index) = W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta)/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
+    max_rates(index) = W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta*(sinc(M*eps))^2)/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
 
     gain_squared = gain_squared/(T*N);
     fprintf('Average gain squared on each subcarrier: %f\n', gain_squared);
