@@ -139,7 +139,6 @@ for index = 1:length(K_set)
         end
      
         % calculate the channel conditions at each subcarrier
-
         inner_product = squeeze(sum(array_configuration.*array_response,1));
         H_k = gamma_C.*inner_product;
 
