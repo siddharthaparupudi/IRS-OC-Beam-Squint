@@ -15,7 +15,7 @@ lamda_c = 3e8/f_c;
 d = lamda_c/2;
 
 % the subcarrier frequencies
-f = linspace(f_c-W/2, f_c+W/2, N);
+f = linspace(-W/2, W/2, N);
 
 % pathloss exponents
 pathloss_BS_IRS = 2;
@@ -31,81 +31,99 @@ eps = 0.178/M;
 % K users
 K_set = [1,5,10,50,100,500,1000,5000,10000];
 
+
+users_x = unifrnd(800,800.1,max(K_set));
+users_y = unifrnd(800,800.1,max(K_set));
+
+d_BS_IRS = sqrt((500-0)^2 + (0-276.725)^2);
+d_IRS_users = zeros(max(K_set),1);
+for k = 1:max(K_set)
+    d_IRS_users(k) = sqrt((users_x(k)-0)^2 + (users_y(k)-276.725)^2);
+end
+
+
+% resolvable anglebook of the IRS
+anglebook = zeros(M,1);
+for i = 1:M
+    anglebook(i) = -1+ 2*(i-1)/M;
+end
+
+% cascaded normalised angles of the BS-IRS-user channels
+psi_C = zeros(max(K_set),1);
+for k = 1:max(K_set)
+    psi_C(k) = anglebook(randi([1,M]));
+end
+
+% normalised angles of the IRS-user channels in presence of beam-squint for all paths, users, frequencies
+theta = bsxfun(@times,psi_C,reshape((1+f/f_c), [1,N]));
+
+% the array response of the IRS for all paths, users, frequencies
+array_response = ULA_array_2(M,max(K_set),N,theta);
+
+% channel gains
+P_alpha = 1e9;
+P_beta = 1e6;
+
+% channel gains of the BS-IRS channel
+alpha =  sqrt((P_alpha*exp(-1/2))/((d_BS_IRS)^(pathloss_BS_IRS)));
+
+
+% channel gains of the IRS-user channels
+beta = zeros(max(K_set),1);
+for k = 1:max(K_set)
+    beta(k) = sqrt((P_beta*exp(-1/2))/(d_IRS_users(k))^(pathloss_IRS_users));
+end
+
+% channel gains of the cascaded BS-IRS-user channels
+gamma_C = zeros(max(K_set),1);
+for k = 1:max(K_set)
+    gamma_C(k) = alpha*beta(k);
+end
+% reshape gamma_C (we see same channel gains on all subcarriers)
+gamma_C = repmat(gamma_C, [1,N]);
+
+
+% channel delays (will neglect later as we will apply a synchronization offset)
+
+% max delay offset for nLOS paths
+tau_offset = 1e-6;
+
+% channel delays for BS-IRS channel
+tau_TR = d_BS_IRS/(3e8);
+
+% channel delays for IRS-user channels
+tau_RR = zeros(max(K_set));
+for k = 1:max(K_set)
+    tau_RR(k) = d_IRS_users(k)/(3e8);
+end
+
+% channel delays of the cascaded BS-IRS-user channels
+tau_C = zeros(max(K_set));
+for k = 1:max(K_set)
+    tau_C(k) = tau_TR + tau_RR(k);
+end
+
 rates = zeros(length(K_set),1);         % the average rate acheived
 max_rates = zeros(length(K_set),1);     % the maximum rate achievable (BF on all subcarriers)
 
 for index = 1:length(K_set)
     K = K_set(index);
-    users_x = unifrnd(800,900,K);
-    users_y = unifrnd(800,900,K);
 
-    d_BS_IRS = sqrt((500-0)^2 + (0-276.725)^2);
-    d_IRS_users = zeros(K,1);
-    for k = 1:K
-        d_IRS_users(k) = sqrt((users_x(k)-0)^2 + (users_y(k)-276.725)^2);
-    end
+    users_x_k = users_x(1:K);
+    users_y_k = users_y(1:K);
+    d_IRS_users_k = d_IRS_users(1:K);
 
-    % resolvable anglebook of the IRS
-    anglebook = zeros(M,1);
-    for i = 1:M
-        anglebook(i) = -1+ 2*(i-1)/M;
-    end
-
-    % cascaded normalised angles of the BS-IRS-user channels
-    psi_C = zeros(K,1);
-    for k = 1:K
-        psi_C(k) = anglebook(randi([1,M]));
-    end
+    psi_C_k = psi_C(1:K);
+    theta_k = theta(:,:,1:K,:);
+    array_response_k = array_response(:,:,:,1:K,:);
     
-    % normalised angles of the IRS-user channels in presence of beam-squint for all paths, users, frequencies
-    theta = bsxfun(@times,psi_C,reshape((1+f/f_c), [1,N]));
-
-    % the array response of the IRS for all paths, users, frequencies
-    array_response = ULA_array_2(M,K,N,theta);
-
-    % channel gains
-    P_alpha = 1e9;
-    P_beta = 1e6;
-
-    % channel gains of the BS-IRS channel
-    alpha =  sqrt((P_alpha*exprnd(1)*exp(-1/2))/((d_BS_IRS)^(pathloss_BS_IRS)));
-
-
-    % channel gains of the IRS-user channels
-    beta = zeros(K,1);
-    for k = 1:K
-        beta(k) = sqrt((P_beta*exprnd(1)*exp(-1/2))/(d_IRS_users(k))^(pathloss_IRS_users));
-    end
-
-    % channel gains of the cascaded BS-IRS-user channels
-    gamma_C = zeros(K,1);
-    for k = 1:K
-        gamma_C(k) = alpha*beta(k);
-    end
-    % reshape gamma_C (we see same channel gains on all subcarriers)
-    gamma_C = repmat(gamma_C, [1,N]);
+    alpha_k = alpha;
+    beta_k = beta(1:K);
+    gamma_C_k = gamma_C(1:K);
     
-
-    % channel delays (will neglect later as we will apply a synchronization offset)
-
-    % max delay offset for nLOS paths
-    tau_offset = 1e-6;
-
-    % channel delays for BS-IRS channel
-    tau_TR = d_BS_IRS/(3e8);
-
-    % channel delays for IRS-user channels
-    tau_RR = zeros(K);
-    for k = 1:K
-        tau_RR(k) = d_IRS_users(k)/(3e8);
-    end
-
-    % channel delays of the cascaded BS-IRS-user channels
-    tau_C = zeros(K);
-    for k = 1:K
-        tau_C(k) = tau_TR + tau_RR(k);
-    end
-
+    tau_TR_k = tau_TR;
+    tau_RR_k = tau_RR(1:K);
+    tau_C_k = tau_C(1:K);
 
     % the set of scheduled users
     schedule = zeros(N,T);
@@ -130,7 +148,7 @@ for index = 1:length(K_set)
         tic
         % generate random phase shifts for the IRS
         a = unifrnd(-1,1);
-        phi = 4*pi*a*(0:M-1);
+        phi = 2*pi*a*(0:M-1);
 
         % the array response vector of the IRS
         array_configuration = zeros(M,1);
