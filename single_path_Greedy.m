@@ -1,7 +1,7 @@
 
 M = 256;    % number of IRS elements
 N = 256;    % number of OFDM subcarriers
-T = 10;      % the number of time slots
+T = 200;      % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
@@ -22,14 +22,15 @@ pathloss_BS_IRS = 2;
 pathloss_IRS_users = 4;
 
 % the tolerance for the Beam Squint effect (90% threshold)
-eps = 0.178/M;
+epsilon = 0.1;
+delta = 0.2;
 
 % BS is at (500,0)
 % 1st IRS element is at (0,276.725)
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1,5,10,50,100,500,1000,5000,10000];
+K_set = [1,10,100,1000,5000];
 
 
 users_x = unifrnd(800,800.1,max(K_set));
@@ -114,12 +115,12 @@ for index = 1:length(K_set)
     d_IRS_users_k = d_IRS_users(1:K);
 
     psi_C_k = psi_C(1:K);
-    theta_k = theta(:,:,1:K,:);
-    array_response_k = array_response(:,:,:,1:K,:);
+    theta_k = theta(1:K,:);
+    array_response_k = array_response(:,1:K,:);
     
     alpha_k = alpha;
     beta_k = beta(1:K);
-    gamma_C_k = gamma_C(1:K);
+    gamma_C_k = gamma_C(1:K,:);
     
     tau_TR_k = tau_TR;
     tau_RR_k = tau_RR(1:K);
@@ -212,7 +213,7 @@ for index = 1:length(K_set)
 
     d_IRS_UE = min(d_IRS_users);
     rates(index) = avg_rate;
-    max_rates(index) = W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta*(sinc(M*eps))^2)/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((0.7498*log(K))^(1.71) + 346.474*0.5772));
+    max_rates(index) = (1-delta)*W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta*(1-epsilon)/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((0.7498*log(K))^(1.71) + 346.474*0.5772)));
 
     gain_squared = gain_squared/(T*N);
     fprintf('Average gain squared on each subcarrier: %f\n', gain_squared);

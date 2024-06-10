@@ -1,8 +1,8 @@
 rng(0);
 
-M = 200;    % number of IRS elements
-N = 128;    % number of OFDM subcarriers
-T = 1;   % the number of time slots
+M = 256;    % number of IRS elements
+N = 512;    % number of OFDM subcarriers
+T = 100;   % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
@@ -27,7 +27,7 @@ pathloss_IRS_users = 4;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1];
+K_set = [1,10,100,1000];
 
 
 users_x = unifrnd(800,800.1,max(K_set));
@@ -112,12 +112,12 @@ for index = 1:length(K_set)
     d_IRS_users_k = d_IRS_users(1:K);
 
     psi_C_k = psi_C(1:K);
-    theta_k = theta(:,:,1:K,:);
-    array_response_k = array_response(:,:,:,1:K,:);
+    theta_k = theta(1:K,:);
+    array_response_k = array_response(:,1:K,:);
 
     alpha_k = alpha;
     beta_k = beta(1:K);
-    gamma_C_k = gamma_C(1:K);
+    gamma_C_k = gamma_C(1:K,:);
     
     tau_TR_k = tau_TR;
     tau_RR_k = tau_RR(1:K);
@@ -212,7 +212,7 @@ for index = 1:length(K_set)
 
     % Plot magnitude and phase
     figure("Color", 'w');
-    plot(f, 1.2*abs(H_averaged(1,:)));
+    plot(f, abs(H_averaged(1,:)));
     xlim([-W/2, W/2]);
     ylim([0, 1.2*max(H_averaged(1,:))]);
     title('\textbf{Magnitude of} $\mathbf{|H|^2}$', 'Interpreter', 'latex');
