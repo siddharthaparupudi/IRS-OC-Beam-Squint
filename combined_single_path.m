@@ -277,7 +277,7 @@ for index = 1:length(K_set)
     fprintf('Jain index for channel gain in Greedy: %f\n', jain_index_gain_greedy);
 
     jain_index_avg_channel_RR = sum(H_averaged_RR)^2/(N*sum(H_averaged_RR.^2));
-    jain_index_avg_channel_greedy = sum(H_averaged_greedy)^2/(N*sum(H_averaged_greedy).^2);
+    jain_index_avg_channel_greedy = sum(H_averaged_greedy)^2/(N*sum(H_averaged_greedy.^2));
     fprintf('Jain index for average channel gain in RR: %f\n', jain_index_avg_channel_RR);
     fprintf('Jain index for average channel gain in Greedy: %f\n', jain_index_avg_channel_greedy);
 
