@@ -29,7 +29,7 @@ eps = 0.178/M;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [2,10,50,100];
+K_set = [1,10,100,1000];
 
 % resolvable anglebook of the IRS
 anglebook = zeros(M,1);
@@ -124,6 +124,7 @@ for k = 1:max(K_set)
     end
 end
 
+fprintf('Initialization done\n');
 
 rates = zeros(length(K_set),1);         % the average rate acheived
 max_rates = zeros(length(K_set),1);     % the maximum rate achievable (BF on all subcarriers)
@@ -181,8 +182,8 @@ for index = 1:length(K_set)
      
         % calculate the channel conditions at each subcarrier
 
-        inner_product = squeeze(sum(array_configuration.*array_response,1));
-        H_k = squeeze(sum(sum(gamma_C.*inner_product.*exp(-1i*2*pi*bsxfun(@times, tau_C, reshape(f, [1,1,1,N]))),1),2));
+        inner_product = squeeze(sum(array_configuration.*array_response_k,1));
+        H_k = squeeze(sum(sum(gamma_C_k.*inner_product.*exp(-1i*2*pi*bsxfun(@times, tau_C_k, reshape(f, [1,1,1,N]))),1),2));
  
   
         % at each time slot, schedule the user with best channel conditions on each subcarrier
