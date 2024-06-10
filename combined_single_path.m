@@ -115,12 +115,12 @@ for index = 1:length(K_set)
     d_IRS_users_k = d_IRS_users(1:K);
 
     psi_C_k = psi_C(1:K);
-    theta_k = theta(:,:,1:K,:);
-    array_response_k = array_response(:,:,:,1:K,:);
+    theta_k = theta(1:K,:);
+    array_response_k = array_response(:,1:K,:);
     
     alpha_k = alpha;
     beta_k = beta(1:K);
-    gamma_C_k = gamma_C(1:K);
+    gamma_C_k = gamma_C(1:K,:);
     
     tau_TR_k = tau_TR;
     tau_RR_k = tau_RR(1:K);
@@ -168,7 +168,7 @@ for index = 1:length(K_set)
         % which subcarrier to transmit
         n = N/2; % centre subcarrier
         for i = 1:M
-            phi_RR(i) = 2*pi*(i-1)*(psi_C_k(user))*(1+ (-W/2 + n*W/N)/f_c);
+            phi_RR(i) = 2*pi*(i-1)*(psi_C_k(user_RR))*(1+ (-W/2 + n*W/N)/f_c);
         end
         % the array response vector of the IRS
         array_configuration_RR = zeros(M,1);
@@ -199,9 +199,9 @@ for index = 1:length(K_set)
         
 
         % Calculate the total rate in each time slot (sum of rates across all subcarriers)
-        Rate_total_greedy(t) = sum(Rate(:,t));
+        Rate_total_greedy(t) = sum(Rate_greedy(:,t));
         % add the rate achieved by the scheduled user
-        Rate_total_RR(t) = Rate_total_RR(t) + sum(W/N*log2(1 + (P/(N*No))*abs(H_k_RR(user,:)).^2));
+        Rate_total_RR(t) = Rate_total_RR(t) + sum(W/N*log2(1 + (P/(N*No))*abs(H_k_RR(user_RR,:)).^2));
         
         gain_2_slot_greedy = 0;
         gain_4_slot_greedy = 0;
@@ -209,25 +209,25 @@ for index = 1:length(K_set)
         gain_4_slot_RR = 0;
     
         for i = 1:N
-            gain_squared_greedy = gain_squared_greedy + abs(H_k(schedule_greedy(i,t),i))^2;
-            gain_squared_RR = gain_squared_RR + abs(H_k_RR(user,i))^2;
-            gain_2_slot_greedy = gain_2_slot_greedy + abs(H_k(schedule_greedy(i,t),i))^2;
-            gain_4_slot_greedy = gain_4_slot_greedy + abs(H_k(schedule_greedy(i,t),i))^4;
-            gain_2_slot_RR = gain_2_slot_RR + abs(H_k_RR(user,i))^2;
-            gain_4_slot_RR = gain_4_slot_RR + abs(H_k_RR(user,i))^4;
+            gain_squared_greedy = gain_squared_greedy + abs(H_k_greedy(schedule_greedy(i,t),i))^2;
+            gain_squared_RR = gain_squared_RR + abs(H_k_RR(user_RR,i))^2;
+            gain_2_slot_greedy = gain_2_slot_greedy + abs(H_k_greedy(schedule_greedy(i,t),i))^2;
+            gain_4_slot_greedy = gain_4_slot_greedy + abs(H_k_greedy(schedule_greedy(i,t),i))^4;
+            gain_2_slot_RR = gain_2_slot_RR + abs(H_k_RR(user_RR,i))^2;
+            gain_4_slot_RR = gain_4_slot_RR + abs(H_k_RR(user_RR,i))^4;
         end
 
         for i = 1:N
-            H_averaged_greedy(i) = H_averaged_greedy(i) + abs(H_k(schedule_greedy(i,t),i))^2/T;
-            H_averaged_RR(i) = H_averaged_RR(i) + abs(H_k_RR(user,i))^2/T;
+            H_averaged_greedy(i) = H_averaged_greedy(i) + abs(H_k_greedy(schedule_greedy(i,t),i))^2/T;
+            H_averaged_RR(i) = H_averaged_RR(i) + abs(H_k_RR(user_RR,i))^2/T;
         end
 
-        centre_subcarrier_gain = abs(H_k_RR(user,N/2))^2;
+        centre_subcarrier_gain = abs(H_k_RR(user_RR,N/2))^2;
         sum_gain = 0;
         count = 0;
 
         for i = 1:N
-            subcarrier_gain = abs(H_k(user, i))^2;
+            subcarrier_gain = abs(H_k_RR(user_RR, i))^2;
             if subcarrier_gain >= 0.9 * centre_subcarrier_gain
                 sum_gain = sum_gain + subcarrier_gain;
                 count = count + 1;
@@ -249,7 +249,7 @@ for index = 1:length(K_set)
     hold on;
     plot(f, H_averaged_greedy);
     xlim([min(f), max(f)]);
-    ylim([0, 1.2*max(H_averaged_greedy, H_averaged_RR)]);
+    ylim([0, 1.2*max(max(H_averaged_greedy), max(H_averaged_RR))]);
     title('\textbf{Magnitude of} $\mathbf{|H|^2}$', 'Interpreter', 'latex');
     xlabel('\textbf{Frequency (Hz)}', 'Interpreter', 'latex'); 
     ylabel('\textbf{Average channel gain at each subcarrier}', 'Interpreter', 'latex'); 
@@ -271,8 +271,6 @@ for index = 1:length(K_set)
     fprintf('Average gain squared on centre subcarriers in RR: %f\n', gain_squared_centre_RR);
     fprintf('Average gain squared on each subcarrier in Greedy: %f\n', gain_squared_greedy);
 
-
-
     jain_index_gain_RR = sum(jain_index_slot_gain_RR)/T;
     jain_index_gain_greedy = sum(jain_index_slot_gain_greedy)/T;
     fprintf('Jain index for channel gain in RR: %f\n', jain_index_gain_RR);
@@ -293,7 +291,7 @@ semilogx(K_set, rates_greedy,"-o");
 hold on;
 semilogx(K_set, max_rates,"-*");
 xlim([min(K_set), max(K_set)]);
-ylim([0, 1.2*max(max_rates, rates_RR, rates_greedy)]);
+ylim([0, 1.2*max(max(max_rates), max(rates_RR), max(rates_greedy))]);
 title('\textbf{Average rate vs. Number of users}', 'Interpreter', 'latex');
 xlabel('\textbf{Number of users (K)}', 'Interpreter', 'latex');
 ylabel('\textbf{Average rate (bps)}', 'Interpreter', 'latex');
