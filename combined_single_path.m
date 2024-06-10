@@ -291,7 +291,7 @@ semilogx(K_set, rates_greedy,"-o");
 hold on;
 semilogx(K_set, max_rates,"-*");
 xlim([min(K_set), max(K_set)]);
-ylim([0, 1.2*max(max(max_rates), max(rates_RR), max(rates_greedy))]);
+ylim([0, 1.2*max(max(max_rates_greedy), max(rates_RR), max(rates_greedy))]);
 title('\textbf{Average rate vs. Number of users}', 'Interpreter', 'latex');
 xlabel('\textbf{Number of users (K)}', 'Interpreter', 'latex');
 ylabel('\textbf{Average rate (bps)}', 'Interpreter', 'latex');
