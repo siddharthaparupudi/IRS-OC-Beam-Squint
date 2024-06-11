@@ -205,9 +205,9 @@ for index_m = 1:length(M_set)
                 n = N/2;
                 for m = 1:M
                     c = 0;
-                    for l1 = 1
-                        for l2 = 1
-                            c = c + gamma_C(l1,l2,user_RR)*exp(-1i*2*pi*(tau_C(l1,l2,user_RR))*(-W/2 + n*W/N))*exp(-1i*2*pi*(m-1)*psi_C(l1,l2,user_RR)*(1+(-W/2 + n*W/N)/f_c));
+                    for l1 = 1:L1
+                        for l2 = 1:L2
+                            c = c + gamma_C_k(l1,l2,user_RR)*exp(-1i*2*pi*(tau_C_k(l1,l2,user_RR))*(-W/2 + n*W/N))*exp(-1i*2*pi*(m-1)*psi_C_k(l1,l2,user_RR)*(1+(-W/2 + n*W/N)/f_c));
                         end
                     end
                     phi_RR(m) = - angle(c);
