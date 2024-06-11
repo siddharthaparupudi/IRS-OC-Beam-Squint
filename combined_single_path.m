@@ -1,6 +1,6 @@
-M_set = [16];    % number of IRS elements
+M_set = [256];    % number of IRS elements
 N_set = [128];    % number of OFDM subcarriers
-T = 100;      % the number of time slots
+T = 10;      % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
@@ -166,7 +166,11 @@ for index_m = 1:length(M_set)
                     array_configuration_greedy(m) = exp(1i*phi_greedy(m));
                 end
                 
-                user_RR = mod(t,K)+1;
+                if mod(t,K)~=0
+                    user_RR = mod(t,K);
+                else
+                    user_RR = K;
+                end
                 schedule_RR(t) = user_RR;
                 phi_RR = zeros(M,1);
                 % BF phase configuration for the 1st path (i.e LoS path) for the scheduled user
