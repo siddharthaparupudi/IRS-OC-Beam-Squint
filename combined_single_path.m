@@ -1,6 +1,6 @@
-M_set = [128,256];    % number of IRS elements
-N_set = [128];    % number of OFDM subcarriers
-T = 10;      % the number of time slots
+M_set = [1024];    % number of IRS elements
+N_set = [512];    % number of OFDM subcarriers
+T = 500;      % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
@@ -26,14 +26,14 @@ delta = 0.1;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1,10,100];
+K_set = [1,3,10,31,100,316,1000];
 
 rates_greedy = zeros(length(K_set),length(M_set), length(N_set));         % the average rate acheived
 rates_RR = zeros(length(K_set),length(M_set), length(N_set));             % the average rate acheived by the RR scheme
 max_rates_greedy = zeros(length(K_set),length(M_set), length(N_set));     % the maximum rate achievable (BF on all subcarriers)
 
-H_variation_RR = zeros(N_set(1), length(M_set));
-H_variation_greedy = zeros(N_set(1), length(M_set));
+H_variation_RR = zeros(N_set(end), length(M_set));
+H_variation_greedy = zeros(N_set(end), length(M_set));
 
 for index_m = 1:length(M_set)
     for index_n = 1:length(N_set)
@@ -44,8 +44,8 @@ for index_m = 1:length(M_set)
         f = linspace(-W/2, W/2, N);
 
 
-        users_x = unifrnd(800,800.1,max(K_set));
-        users_y = unifrnd(800,800.1,max(K_set));
+        users_x = unifrnd(800,900,max(K_set));
+        users_y = unifrnd(800,900,max(K_set));
 
         d_BS_IRS = sqrt((500-0)^2 + (0-276.725)^2);
         d_IRS_users = zeros(max(K_set),1);
@@ -259,26 +259,26 @@ for index_m = 1:length(M_set)
             end
 
             % Plot magnitude and phase
-            figure("Color", 'w');
-            plot(f, H_averaged_RR);
-            hold on;
-            plot(f, H_averaged_greedy);
-            xlim([min(f), max(f)]);
-            ylim([0, 1.2*max(max(H_averaged_greedy), max(H_averaged_RR))]);
-            title('\textbf{Magnitude of} $\mathbf{|H|^2}$', 'Interpreter', 'latex');
-            xlabel('\textbf{Frequency (Hz)}', 'Interpreter', 'latex'); 
-            ylabel('\textbf{Average channel gain at each subcarrier}', 'Interpreter', 'latex'); 
-            legend('Average channel in RR', 'Average channel in Greedy', 'Interpreter', 'latex')
+            % figure("Color", 'w');
+            % plot(f, H_averaged_RR);
+            % hold on;
+            % plot(f, H_averaged_greedy);
+            % xlim([min(f), max(f)]);
+            % ylim([0, 1.2*max(max(H_averaged_greedy), max(H_averaged_RR))]);
+            % title('\textbf{Magnitude of} $\mathbf{|H|^2}$', 'Interpreter', 'latex');
+            % xlabel('\textbf{Frequency (Hz)}', 'Interpreter', 'latex'); 
+            % ylabel('\textbf{Average channel gain at each subcarrier}', 'Interpreter', 'latex'); 
+            % legend('Average channel in RR', 'Average channel in Greedy', 'Interpreter', 'latex')
 
             avg_rate_greedy = sum(Rate_total_greedy)/T;
             avg_rate_RR = sum(Rate_total_RR)/T;
-            fprintf('Average rate RR: %f\n', avg_rate_RR);
-            fprintf('Average rate Greedy: %f\n', avg_rate_greedy); 
+            fprintf('Average rate RR: %f\n', avg_rate_RR/W);
+            fprintf('Average rate Greedy: %f\n', avg_rate_greedy/W); 
 
-            d_IRS_UE = min(d_IRS_users);
-            rates_greedy(index, index_m, index_n) = avg_rate_greedy;
-            rates_RR(index, index_m, index_n) = avg_rate_RR;
-            max_rates_greedy(index, index_m, index_n) = (1-delta)*W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta*(1-epsilon))/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((0.7498*log(K))^(1.71) + pi));
+            d_IRS_UE = mean(d_IRS_users);
+            rates_greedy(index, index_m, index_n) = (1/W)*avg_rate_greedy;
+            rates_RR(index, index_m, index_n) = (1/W)*avg_rate_RR;
+            max_rates_greedy(index, index_m, index_n) = (1/W)*(1-delta)*W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta*(1-epsilon))/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((0.7498*log(K))^(1.71) + pi));
          
             gain_squared_greedy = gain_squared_greedy/(T*N);
             gain_squared_RR = gain_squared_RR/(T*N);
@@ -305,17 +305,17 @@ legendLabels = {};
 for index_m = 1:length(M_set)
     hold on;
     plot(f, H_variation_RR(:, index_m));
-    legendLabels{end+1} = sprintf('Average channel gain RR (M = %d)', M_set(index_m));
+    legendLabels{end+1} = sprintf('Average channel gain RR (M = %d, N = %d)', M_set(index_m), N_set(end));
     hold on;
     plot(f, H_variation_greedy(:, index_m));
-    legendLabels{end+1} = sprintf('Average channel gain Greedy (M = %d)', M_set(index_m));
+    legendLabels{end+1} = sprintf('Average channel gain Greedy (M = %d, N = %d)', M_set(index_m), N_set(end));
     xlim([min(f), max(f)]);
     ylim([0, 1.2*max(max(H_variation_greedy(:, index_m)), max(H_variation_RR(:, index_m)))]);
     title('\textbf{Magnitude of} $\mathbf{|H|^2}$', 'Interpreter', 'latex');
     xlabel('\textbf{Frequency (Hz)}', 'Interpreter', 'latex');
     ylabel('\textbf{Average channel gain at each subcarrier}', 'Interpreter', 'latex');
 end
-legend(legendLabels, 'Interpreter', 'latex'); % Set the legend after accumulating labels
+legend(legendLabels, 'Interpreter', 'latex'); 
 
 
 % plot variation of average rate with number of users
@@ -326,37 +326,37 @@ for index_m = 1:length(M_set)
     for index_n = 1:length(N_set)
         hold on;
         semilogx(K_set, rates_RR(:, index_m, index_n), "-x");
-        legendLabels{end+1} = sprintf('Average rate RR (N = %d, M = %d)', N_set(index_n), M_set(index_m));
+        legendLabels{end+1} = sprintf('Average rate RR (M = %d, N = %d)', M_set(index_m), N_set(index_n));
         hold on;
         semilogx(K_set, rates_greedy(:, index_m, index_n),"-o");
-        legendLabels{end+1} = sprintf('Average rate Greedy (N = %d, M = %d)', N_set(index_n), M_set(index_m));
+        legendLabels{end+1} = sprintf('Average rate Greedy (M = %d, N = %d)', M_set(index_m), N_set(index_n));
         hold on;
         semilogx(K_set, max_rates_greedy(:, index_m, index_n),"-*");
-        legendLabels{end+1} = sprintf('Max rate (N = %d, M = %d)', N_set(index_n), M_set(index_m));
+        legendLabels{end+1} = sprintf('Max rate (M = %d, N = %d)', M_set(index_m), N_set(index_n));
         xlim([min(K_set), max(K_set)]);
         ylim([0, 1.2*max(max(max(max_rates_greedy(:, index_m, index_n)), max(rates_RR(:, index_m, index_n))), max(rates_greedy(:, index_m, index_n)))]);
         title('\textbf{Average rate vs. Number of users}', 'Interpreter', 'latex');
         xlabel('\textbf{Number of users (K)}', 'Interpreter', 'latex');
-        ylabel('\textbf{Average rate (bps)}', 'Interpreter', 'latex');
+        ylabel('\textbf{Average rate (bps/Hz)}', 'Interpreter', 'latex');
     end
 end
-legend(legendLabels, 'Interpreter', 'latex'); % Set the legend after accumulating labels
+legend(legendLabels, 'Interpreter', 'latex'); 
 
-figure('Color', 'w');
-for index_n = 1:length(N_set)
-    hold on;
-    semilogx(log2(M_set), rates_RR(length(K_set), :, index_n), "-x");
-    hold on;
-    semilogx(log2(M_set), rates_greedy(length(K_set), :, index_n), "-o");
-    hold on;
-    semilogx(log2(M_set), max_rates_greedy(length(K_set), :, index_n), "-*");
-    xlim([min(log2(M_set)), max(log2(M_set))]);
-    ylim([0, 1.2*max(max(max(max_rates_greedy(length(K_set), :, index_n)), max(rates_RR(length(K_set), :, index_n))), max(rates_greedy(length(K_set), :, index_n)))]);
-    title('\textbf{Average rate vs. Number of IRS elements}', 'Interpreter', 'latex');
-    xlabel('\textbf{Number of IRS elements (M)}', 'Interpreter', 'latex');
-    ylabel('\textbf{Average rate (bps)}', 'Interpreter', 'latex');
-    legend('Average rate RR', 'Average rate Greedy', 'Max rate', 'Interpreter', 'latex');
-end
+% figure('Color', 'w');
+% for index_n = 1:length(N_set)
+%     hold on;
+%     semilogx(log2(M_set), rates_RR(length(K_set), :, index_n), "-x");
+%     hold on;
+%     semilogx(log2(M_set), rates_greedy(length(K_set), :, index_n), "-o");
+%     hold on;
+%     semilogx(log2(M_set), max_rates_greedy(length(K_set), :, index_n), "-*");
+%     xlim([min(log2(M_set)), max(log2(M_set))]);
+%     ylim([0, 1.2*max(max(max(max_rates_greedy(length(K_set), :, index_n)), max(rates_RR(length(K_set), :, index_n))), max(rates_greedy(length(K_set), :, index_n)))]);
+%     title('\textbf{Average rate vs. Number of IRS elements}', 'Interpreter', 'latex');
+%     xlabel('\textbf{Number of IRS elements (M)}', 'Interpreter', 'latex');
+%     ylabel('\textbf{Average rate (bps/Hz)}', 'Interpreter', 'latex');
+%     legend('Average rate RR', 'Average rate Greedy', 'Max rate', 'Interpreter', 'latex');
+% end
 
 
 
