@@ -1,6 +1,6 @@
-M_set = [1,4,16,64,256,1024];    % number of IRS elements
+M_set = [1,2,4,8,16,32,64,128,256,512,1024];    % number of IRS elements
 N_set = [512];    % number of OFDM subcarriers
-T = 500;      % the number of time slots
+T = 1;      % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
@@ -26,11 +26,12 @@ delta = 0;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1000];
+K_set = [10,100];
 
 rates_greedy = zeros(length(K_set),length(M_set), length(N_set));         % the average rate acheived
 rates_RR = zeros(length(K_set),length(M_set), length(N_set));             % the average rate acheived by the RR scheme
 max_rates_greedy = zeros(length(K_set),length(M_set), length(N_set));     % the maximum rate achievable (BF on all subcarriers)
+max_rates_RR = zeros(length(K_set),length(M_set), length(N_set));         % the maximum rate achievable by the RR scheme (no multiuser diversity)
 
 H_variation_RR = zeros(N_set(end), length(M_set));
 H_variation_greedy = zeros(N_set(end), length(M_set));
@@ -279,6 +280,7 @@ for index_m = 1:length(M_set)
             rates_greedy(index, index_m, index_n) = (1/W)*avg_rate_greedy;
             rates_RR(index, index_m, index_n) = (1/W)*avg_rate_RR;
             max_rates_greedy(index, index_m, index_n) = (1/W)*(1-delta)*W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta*(1-epsilon))/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((0.7498*log(K))^(1.71) + pi));
+            max_rates_RR(index, index_m, index_n) = (1/W)*(1-delta)*W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta*(1-epsilon))/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users))));
          
             gain_squared_greedy = gain_squared_greedy/(T*N);
             gain_squared_RR = gain_squared_RR/(T*N);
@@ -350,6 +352,8 @@ for index_n = 1:length(N_set)
     semilogx(log2(M_set), rates_greedy(length(K_set), :, index_n), "-o");
     hold on;
     semilogx(log2(M_set), max_rates_greedy(length(K_set), :, index_n), "-*");
+    hold on;
+    semilogx(log2(M_set), max_rates_RR(length(K_set), :, index_n), "-+");
     xlim([min(log2(M_set)), max(log2(M_set))]);
     ylim([0, 1.2*max(max(max(max_rates_greedy(length(K_set), :, index_n)), max(rates_RR(length(K_set), :, index_n))), max(rates_greedy(length(K_set), :, index_n)))]);
     xt = get(gca, 'XTick');
@@ -357,7 +361,7 @@ for index_n = 1:length(N_set)
     title('\textbf{Average rate vs. Number of IRS elements}', 'Interpreter', 'latex');
     xlabel('\textbf{Number of IRS elements (M)}', 'Interpreter', 'latex');
     ylabel('\textbf{Average rate (bps/Hz)}', 'Interpreter', 'latex');
-    legend('Average rate RR', 'Average rate Greedy', 'Max rate', 'Interpreter', 'latex');
+    legend('Average rate RR', 'Average rate Greedy', 'Max rate (with multiuser diversity)', 'Max rate (without multiuser diversity)','Interpreter', 'latex');
 end
 
 
