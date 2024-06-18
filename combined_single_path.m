@@ -1,6 +1,6 @@
-M_set = [1024];    % number of IRS elements
+M_set = [1,2,4,8,16,32,64,128,256,512,1024];    % number of IRS elements
 N_set = [512];    % number of OFDM subcarriers
-T = 500;      % the number of time slots
+T = 1000;      % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
@@ -26,7 +26,7 @@ delta = 0;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1,3,10,31,100,316,1000];
+K_set = [1000];
 
 rates_greedy = zeros(length(K_set),length(M_set), length(N_set));         % the average rate acheived
 rates_RR = zeros(length(K_set),length(M_set), length(N_set));             % the average rate acheived by the RR scheme
@@ -320,52 +320,52 @@ end
 % legend(legendLabels, 'Interpreter', 'latex'); 
 
 
-% plot variation of average rate with number of users
-figure('Color', 'w');
-set(gca, 'XScale', 'log');
-legendLabels = {};
-for index_m = 1:length(M_set)
-    for index_n = 1:length(N_set)
-        hold on;
-        semilogx(K_set, rates_RR(:, index_m, index_n), "-x");
-        legendLabels{end+1} = sprintf('Average rate RR (M = %d, N = %d)', M_set(index_m), N_set(index_n));
-        hold on;
-        semilogx(K_set, rates_greedy(:, index_m, index_n),"-o");
-        legendLabels{end+1} = sprintf('Average rate Greedy (M = %d, N = %d)', M_set(index_m), N_set(index_n));
-        hold on;
-        semilogx(K_set, max_rates_greedy(:, index_m, index_n),"-*");
-        legendLabels{end+1} = sprintf('Max rate (with multiuser diversity) (M = %d, N = %d)', M_set(index_m), N_set(index_n));
-        hold on;
-        semilogx(K_set, max_rates_RR(:, index_m, index_n),"-+");
-        legendLabels{end+1} = sprintf('Max rate (without multiuser diversity) (M = %d, N = %d)', M_set(index_m), N_set(index_n));
-        xlim([min(K_set), max(K_set)]);
-        ylim([0, 1.2*max(max(max(max_rates_greedy(:, index_m, index_n)), max(rates_RR(:, index_m, index_n))), max(rates_greedy(:, index_m, index_n)))]);
-        title('\textbf{Average rate vs. Number of users}', 'Interpreter', 'latex');
-        xlabel('\textbf{Number of users (K)}', 'Interpreter', 'latex');
-        ylabel('\textbf{Average rate (bps/Hz)}', 'Interpreter', 'latex');
-    end
-end
-legend(legendLabels, 'Interpreter', 'latex'); 
-
+% % plot variation of average rate with number of users
 % figure('Color', 'w');
-% for index_n = 1:length(N_set)
-%     hold on;
-%     semilogx(log2(M_set), rates_RR(length(K_set), :, index_n), "-x");
-%     hold on;
-%     semilogx(log2(M_set), rates_greedy(length(K_set), :, index_n), "-o");
-%     hold on;
-%     semilogx(log2(M_set), max_rates_greedy(length(K_set), :, index_n), "-*");
-%     hold on;
-%     semilogx(log2(M_set), max_rates_RR(length(K_set), :, index_n), "-+");
-%     xlim([min(log2(M_set)), max(log2(M_set))]);
-%     ylim([0, 1.2*max(max(max(max_rates_greedy(length(K_set), :, index_n)), max(rates_RR(length(K_set), :, index_n))), max(rates_greedy(length(K_set), :, index_n)))]);
-%     xt = get(gca, 'XTick');
-%     set (gca, 'XTickLabel', 2.^xt);
-%     title('\textbf{Average rate vs. Number of IRS elements}', 'Interpreter', 'latex');
-%     xlabel('\textbf{Number of IRS elements (M)}', 'Interpreter', 'latex');
-%     ylabel('\textbf{Average rate (bps/Hz)}', 'Interpreter', 'latex');
-%     legend('Average rate RR', 'Average rate Greedy', 'Max rate (with multiuser diversity)', 'Max rate (without multiuser diversity)','Interpreter', 'latex');
+% set(gca, 'XScale', 'log');
+% legendLabels = {};
+% for index_m = 1:length(M_set)
+%     for index_n = 1:length(N_set)
+%         hold on;
+%         semilogx(K_set, rates_RR(:, index_m, index_n), "-x");
+%         legendLabels{end+1} = sprintf('Average rate RR (M = %d, N = %d)', M_set(index_m), N_set(index_n));
+%         hold on;
+%         semilogx(K_set, rates_greedy(:, index_m, index_n),"-o");
+%         legendLabels{end+1} = sprintf('Average rate Greedy (M = %d, N = %d)', M_set(index_m), N_set(index_n));
+%         hold on;
+%         semilogx(K_set, max_rates_greedy(:, index_m, index_n),"-*");
+%         legendLabels{end+1} = sprintf('Max rate (with multiuser diversity) (M = %d, N = %d)', M_set(index_m), N_set(index_n));
+%         hold on;
+%         semilogx(K_set, max_rates_RR(:, index_m, index_n),"-+");
+%         legendLabels{end+1} = sprintf('Max rate (without multiuser diversity) (M = %d, N = %d)', M_set(index_m), N_set(index_n));
+%         xlim([min(K_set), max(K_set)]);
+%         ylim([0, 1.2*max(max(max(max_rates_greedy(:, index_m, index_n)), max(rates_RR(:, index_m, index_n))), max(rates_greedy(:, index_m, index_n)))]);
+%         title('\textbf{Average rate vs. Number of users}', 'Interpreter', 'latex');
+%         xlabel('\textbf{Number of users (K)}', 'Interpreter', 'latex');
+%         ylabel('\textbf{Average rate (bps/Hz)}', 'Interpreter', 'latex');
+%     end
 % end
+% legend(legendLabels, 'Interpreter', 'latex'); 
+
+figure('Color', 'w');
+for index_n = 1:length(N_set)
+    hold on;
+    semilogx(log2(M_set), rates_RR(length(K_set), :, index_n), "-x");
+    hold on;
+    semilogx(log2(M_set), rates_greedy(length(K_set), :, index_n), "-o");
+    hold on;
+    semilogx(log2(M_set), max_rates_greedy(length(K_set), :, index_n), "-*");
+    hold on;
+    semilogx(log2(M_set), max_rates_RR(length(K_set), :, index_n), "-+");
+    xlim([min(log2(M_set)), max(log2(M_set))]);
+    ylim([0, 1.2*max(max(max(max_rates_greedy(length(K_set), :, index_n)), max(rates_RR(length(K_set), :, index_n))), max(rates_greedy(length(K_set), :, index_n)))]);
+    xt = get(gca, 'XTick');
+    set (gca, 'XTickLabel', 2.^xt);
+    title('\textbf{Average rate vs. Number of IRS elements}', 'Interpreter', 'latex');
+    xlabel('\textbf{Number of IRS elements (M)}', 'Interpreter', 'latex');
+    ylabel('\textbf{Average rate (bps/Hz)}', 'Interpreter', 'latex');
+    legend('Average rate RR', 'Average rate Greedy', 'Max rate (with multiuser diversity)', 'Max rate (without multiuser diversity)','Interpreter', 'latex');
+end
 
 
 
