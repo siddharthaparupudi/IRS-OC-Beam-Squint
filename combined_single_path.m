@@ -178,6 +178,7 @@ for index_m = 1:length(M_set)
                     user_RR = K;
                 end
                 schedule_RR(t) = user_RR;
+                
                 phi_RR = zeros(M,1);
                 % BF phase configuration for the 1st path (i.e LoS path) for the scheduled user
                 % which subcarrier to transmit

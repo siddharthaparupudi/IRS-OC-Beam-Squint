@@ -1,7 +1,7 @@
 
 M = 512;    % number of IRS elements
 N = 128;    % number of OFDM subcarriers
-T = 100;      % the number of time slots
+T = 1;      % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
@@ -26,7 +26,7 @@ pathloss_IRS_users = 4;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [2,10];
+K_set = [10];
 
 % resolvable anglebook of the IRS
 anglebook = zeros(M,1);
@@ -193,18 +193,6 @@ for index = 1:length(K_set)
         for m = 1:M
             array_configuration(m) = exp(1i*phi(m));
         end
-        
-
-        H_k = zeros(K,N);
-    
-        % calculate the channel for the scheduled user
-        % for k = user
-        %     for i = 1:N
-        %         matrix = ULA_array(M, L1, L2, psi_C(:,:,k)*(1+f(i)/f_c)); 
-        %         inner_product = squeeze(sum(array_vector .* matrix, 1));
-        %         H_k(k,i) = sum(sum(gamma_C(:,:,k).*inner_product.*exp(-1i*2*pi*f(i)*(tau_C(:,:,k)))));      
-        %     end
-        % end
 
         inner_product = squeeze(sum(array_configuration.*array_response_k,1));
         H_k = squeeze(sum(sum(gamma_C_k.*inner_product.*exp(-1i*2*pi*bsxfun(@times, tau_C_k, reshape(f, [1,1,1,N]))),1),2));
