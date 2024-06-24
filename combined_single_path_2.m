@@ -1,7 +1,7 @@
-M_set = [1,2,4,8,16,32,64,256];    % number of IRS elements
+M_set = [1,2,4,8,16,32,64,256,512];    % number of IRS elements
 N_set = [128];    % number of OFDM subcarriers
-T = 100;      % the number of time slots
-tau = 100;     % the time constant for the long term rates
+T = 10000;      % the number of time slots
+tau = 1000;     % the time constant for the long term rates
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
