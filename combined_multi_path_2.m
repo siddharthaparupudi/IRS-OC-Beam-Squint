@@ -1,6 +1,7 @@
 M_set = [1,2,4,8,16,32,64,128,256,512];    % number of IRS elements
 N_set = [128];    % number of OFDM subcarriers
-T = 1000;      % the number of time slots
+T = 10000;      % the number of time slots
+tau = 1000;    % the acceptable delay of the system
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
@@ -9,7 +10,7 @@ L2 = 2;     % number of paths in the IRS-user channel
 
 % carrier frequency, bandwidth, wavelength and distance between IRS elements
 f_c = 30e9;
-W = 2e9;
+W = 400e6;
 lamda_c = 3e8/f_c;
 d = lamda_c/2;
 

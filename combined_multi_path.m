@@ -1,7 +1,7 @@
 
 M_set = [1,2,4,8,16,32,64,128,256,512];    % number of IRS elements
 N_set = [128];    % number of OFDM subcarriers
-T = 1000;      % the number of time slots
+T = 100;      % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 

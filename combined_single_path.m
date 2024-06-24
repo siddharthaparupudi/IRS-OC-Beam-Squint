@@ -1,4 +1,4 @@
-M_set = [1,2,4,8,16,32,64,256,512,1024];    % number of IRS elements
+M_set = [1,2,4,8,16,32,64,128,256,512];    % number of IRS elements
 N_set = [128];    % number of OFDM subcarriers
 T = 100;      % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
@@ -9,7 +9,7 @@ L2 = 1;     % number of paths in the IRS-user channel
 
 % carrier frequency, bandwidth, wavelength and distance between IRS elements
 f_c = 30e9;
-W = 400e6;
+W = 2e9;
 lamda_c = 3e8/f_c;
 d = lamda_c/2;
 
@@ -78,13 +78,13 @@ for index_m = 1:length(M_set)
         P_beta = 1e6;
 
         % channel gains of the BS-IRS channel
-        alpha =  sqrt((P_alpha*exp(-1/2))/((d_BS_IRS)^(pathloss_BS_IRS)));
+        alpha =  sqrt((P_alpha*exp(-1/2)*exprnd(1))/((d_BS_IRS)^(pathloss_BS_IRS)));
 
 
         % channel gains of the IRS-user channels
         beta = zeros(max(K_set),1);
         for k = 1:max(K_set)
-            beta(k) = sqrt((P_beta*exp(-1/2))/(d_IRS_users(k))^(pathloss_IRS_users));
+            beta(k) = sqrt((P_beta*exp(-1/2)*exprnd(1))/(d_IRS_users(k))^(pathloss_IRS_users));
         end
 
         % channel gains of the cascaded BS-IRS-user channels

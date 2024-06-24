@@ -1,6 +1,6 @@
 M_set = [1,2,4,8,16,32,64,256];    % number of IRS elements
 N_set = [128];    % number of OFDM subcarriers
-T = 10000;      % the number of time slots
+T = 100;      % the number of time slots
 tau = 100;     % the time constant for the long term rates
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
@@ -27,7 +27,7 @@ delta = 0;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1,3,10,31,100,316];
+K_set = [1,3,10,31,100,316,1000];
 
 rates_greedy = zeros(length(K_set),length(M_set), length(N_set));         % the average rate acheived
 rates_RR = zeros(length(K_set),length(M_set), length(N_set));             % the average rate acheived by the RR scheme
