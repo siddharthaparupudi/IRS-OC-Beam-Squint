@@ -1,6 +1,6 @@
-M_set = [1,2,4,8,16,32,64,128,256,512];    % number of IRS elements
+M_set = [512];    % number of IRS elements
 N_set = [128];    % number of OFDM subcarriers
-T = 10000;      % the number of time slots
+T = 10;      % the number of time slots
 tau = 1000;    % the acceptable delay of the system
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
@@ -27,7 +27,7 @@ delta = 0;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1,3,10,31,100,316,1000];
+K_set = [1000];
 
 rates_greedy = zeros(length(K_set),length(M_set), length(N_set));         % the average rate acheived
 rates_RR = zeros(length(K_set),length(M_set), length(N_set));             % the average rate acheived by the RR scheme
@@ -461,7 +461,7 @@ for index_n = length(N_set)
     title('\textbf{Average rate vs. Number of IRS elements}', 'Interpreter', 'latex');
     xlabel('\textbf{Number of IRS elements (M)}', 'Interpreter', 'latex');
     ylabel('\textbf{Average rate (bps/Hz)}', 'Interpreter', 'latex');
-    legend('Average rate RR', 'Average rate Greedy', 'Max rate (with multiuser diversity)', 'Max rate (without multiuser diversity)','Interpreter', 'latex');
+    legend('Average rate RR', 'Average rate Greedy','Average rate PF', 'Max rate (with multiuser diversity)', 'Max rate (without multiuser diversity)','Interpreter', 'latex');
 end
 
 function ULA = ULA_array_2(M,L1,L2,K,N,theta)
