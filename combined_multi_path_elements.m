@@ -1,7 +1,7 @@
 
 M_set = [1,2,4,8,16,32,64,128,256,512];    % number of IRS elements
 N_set = [128];    % number of OFDM subcarriers
-T = 100;      % the number of time slots
+T = 1000;      % the number of time slots
 P = 1e-3;   % Total Power at the BS (equal power allocation to all subcarriers)
 No = 1e-9;  % Noise power
 
@@ -10,7 +10,7 @@ L2 = 2;     % number of paths in the IRS-user channel
 
 % carrier frequency, bandwidth, wavelength and distance between IRS elements
 f_c = 30e9;
-W = 2e9;
+W = 400e6;
 lamda_c = 3e8/f_c;
 d = lamda_c/2;
 
@@ -27,7 +27,7 @@ delta = 0;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1,3,10,31,100,316,1000];
+K_set = [1000];
 
 rates_greedy = zeros(length(K_set),length(M_set), length(N_set));         % the average rate acheived
 rates_RR = zeros(length(K_set),length(M_set), length(N_set));             % the average rate acheived by the RR scheme
@@ -37,114 +37,112 @@ max_rates_RR = zeros(length(K_set),length(M_set), length(N_set));         % the 
 H_variation_RR = zeros(N_set(end), length(M_set));
 H_variation_greedy = zeros(N_set(end), length(M_set));
 
-for index_m = 1:length(M_set)
+for index = 1:length(K_set)
     for index_n = 1:length(N_set)
-        M = M_set(index_m);
-        N = N_set(index_n);
-
-        % the subcarrier frequencies
-        f = linspace(-W/2, W/2, N);
-
-
-        users_x = unifrnd(800,800.1,max(K_set));
-        users_y = unifrnd(800,800.1,max(K_set));
-
-        d_BS_IRS = sqrt((500-0)^2 + (0-276.725)^2);
-        d_IRS_users = zeros(max(K_set),1);
-        for k = 1:max(K_set)
-            d_IRS_users(k) = sqrt((users_x(k)-0)^2 + (users_y(k)-276.725)^2);
-        end
-
-
-        % resolvable anglebook of the IRS
-        anglebook = zeros(M,1);
-        for i = 1:M
-            anglebook(i) = -1+ 2*(i-1)/M;
-        end
-
-        % cascaded normalised angles of the BS-IRS-user channels
-        
-        % cascaded normalised angles of the BS-IRS-user channels
-        psi_C = zeros(L1,L2,max(K_set));
-        for k = 1:max(K_set)
-            for l1 = 1:L1
-                for l2 = 1:L2
-                    psi_C(l1,l2,k) = anglebook(randi([1,M]));
-                end
-            end
-        end
-
-        % normalised angles of the IRS-user channels in presence of beam-squint for all paths, users, frequencies
-        theta = bsxfun(@times,psi_C,reshape((1+f/f_c), [1,1,1,N]));
-
-        % the array response of the IRS for all paths, users, frequencies
-        array_response = ULA_array_2(M,L1,L2,max(K_set),N,theta);
-
-        % channel gains
-        P_alpha = 1e9;
-        P_beta = 1e6;
-
-        % channel gains of the BS-IRS channel
-        alpha = zeros(L1,1);
-        for l1 = 1:L1
-            alpha(l1) = sqrt((P_alpha*exp(-l1/2)*exprnd(1))/((d_BS_IRS)^(pathloss_BS_IRS)));
-        end
-
-        % channel gains of the IRS-user channels
-        beta = zeros(L2,max(K_set));
-        for k = 1:max(K_set)
-            for l2 = 1:L2
-                beta(l2,k) = sqrt((P_beta*exp(-l2/2)*exprnd(1))/(d_IRS_users(k))^(pathloss_IRS_users));
-            end
-        end
-
-        % channel gains of the cascaded BS-IRS-user channels
-        gamma_C = zeros(L1,L2,max(K_set));
-        for k = 1:max(K_set)
-            for l1 = 1:L1
-                for l2 = 1:L2
-                    gamma_C(l1,l2,k) = alpha(l1)*beta(l2,k);
-                end
-            end
-        end
-        % reshape gamma_C (we see same channel gains on all subcarriers)
-        gamma_C = repmat(gamma_C, [1,1,1,N]);
-
-
-        % channel delays
-
-        % max delay offset for nLOS paths
-        tau_offset = 1e-6;
-
-        % channel delays for BS-IRS channel
-        tau_TR = zeros(L1,1);
-        tau_TR(1) = d_BS_IRS/3e8;
-        for l1 = 2:L1
-            tau_TR(l1) = unifrnd(tau_TR(1), tau_TR(1) + tau_offset);
-        end
-
-        % channel delays for IRS-user channels
-        tau_RR = zeros(L2,max(K_set));
-        for k = 1:max(K_set)
-            tau_RR(1,k) = d_IRS_users(k)/(3e8);
-            for l2 = 2:L2
-                tau_RR(l2,k) = unifrnd(tau_RR(1,k), tau_RR(1,k) + tau_offset);
-            end
-        end
-
-        % channel delays of the cascaded BS-IRS-user channels
-        tau_C = zeros(L1,L2,max(K_set));
-        for k = 1:max(K_set)
-            for l1 = 1:L1
-                for l2 = 1:L2
-                    tau_C(l1,l2,k) = tau_TR(l1) + tau_RR(l2,k);
-                end
-            end
-        end
-
-
-        for index = 1:length(K_set)
+        for index_m = 1:length(M_set)
             K = K_set(index);
+            M = M_set(index_m);
+            N = N_set(index_n);
+
+            % the subcarrier frequencies
+            f = linspace(-W/2, W/2, N);
+
+
+            users_x = unifrnd(800,800.1,K);
+            users_y = unifrnd(800,800.1,K);
+
+            d_BS_IRS = sqrt((500-0)^2 + (0-276.725)^2);
+            d_IRS_users = zeros(K,1);
+            for k = 1:K
+                d_IRS_users(k) = sqrt((users_x(k)-0)^2 + (users_y(k)-276.725)^2);
+            end
+
+
+            % resolvable anglebook of the IRS
+            anglebook = zeros(M,1);
+            for i = 1:M
+                anglebook(i) = -1+ 2*(i-1)/M;
+            end
+
+            % cascaded normalised angles of the BS-IRS-user channels
+            
+            % cascaded normalised angles of the BS-IRS-user channels
+            psi_C = zeros(L1,L2,max(K_set));
+            for k = 1:K
+                for l1 = 1:L1
+                    for l2 = 1:L2
+                        psi_C(l1,l2,k) = anglebook(randi([1,M]));
+                    end
+                end
+            end
+
+            % normalised angles of the IRS-user channels in presence of beam-squint for all paths, users, frequencies
+            theta = bsxfun(@times,psi_C,reshape((1+f/f_c), [1,1,1,N]));
+
+            % the array response of the IRS for all paths, users, frequencies
+            array_response = ULA_array_2(M,L1,L2,K,N,theta);
+
+            % channel gains
+            P_alpha = 1e9;
+            P_beta = 1e6;
+
+            % channel gains of the BS-IRS channel
+            alpha = zeros(L1,1);
+            for l1 = 1:L1
+                alpha(l1) = sqrt((P_alpha*exp(-l1/2)*exprnd(1))/((d_BS_IRS)^(pathloss_BS_IRS)));
+            end
+
+            % channel gains of the IRS-user channels
+            beta = zeros(L2,K);
+            for k = 1:K
+                for l2 = 1:L2
+                    beta(l2,k) = sqrt((P_beta*exp(-l2/2)*exprnd(1))/(d_IRS_users(k))^(pathloss_IRS_users));
+                end
+            end
+
+            % channel gains of the cascaded BS-IRS-user channels
+            gamma_C = zeros(L1,L2,max(K_set));
+            for k = 1:K
+                for l1 = 1:L1
+                    for l2 = 1:L2
+                        gamma_C(l1,l2,k) = alpha(l1)*beta(l2,k);
+                    end
+                end
+            end
+            % reshape gamma_C (we see same channel gains on all subcarriers)
+            gamma_C = repmat(gamma_C, [1,1,1,N]);
+
+
+            % channel delays
+
+            % max delay offset for nLOS paths
+            tau_offset = 1e-6;
+
+            % channel delays for BS-IRS channel
+            tau_TR = zeros(L1,1);
+            tau_TR(1) = d_BS_IRS/3e8;
+            for l1 = 2:L1
+                tau_TR(l1) = unifrnd(tau_TR(1), tau_TR(1) + tau_offset);
+            end
+
+            % channel delays for IRS-user channels
+            tau_RR = zeros(L2,K);
+            for k = 1:K
+                tau_RR(1,k) = d_IRS_users(k)/(3e8);
+                for l2 = 2:L2
+                    tau_RR(l2,k) = unifrnd(tau_RR(1,k), tau_RR(1,k) + tau_offset);
+                end
+            end
+
+            % channel delays of the cascaded BS-IRS-user channels
+            tau_C = zeros(L1,L2,K);
+            for k = 1:K
+                for l1 = 1:L1
+                    for l2 = 1:L2
+                        tau_C(l1,l2,k) = tau_TR(l1) + tau_RR(l2,k);
+                    end
+                end
+            end
 
             users_x_k = users_x(1:K);
             users_y_k = users_y(1:K);
@@ -360,31 +358,31 @@ legend(legendLabels, 'Interpreter', 'latex');
 
 
 % plot variation of average rate with number of users
-figure('Color', 'w');
-set(gca, 'XScale', 'log');
-legendLabels = {};
-for index_m = length(M_set)
-    for index_n = length(N_set)
-        hold on;
-        semilogx(K_set, rates_RR(:, index_m, index_n), "-x");
-        legendLabels{end+1} = sprintf('Average rate RR (M = %d, N = %d)', M_set(index_m), N_set(index_n));
-        hold on;
-        semilogx(K_set, rates_greedy(:, index_m, index_n),"-o");
-        legendLabels{end+1} = sprintf('Average rate Greedy (M = %d, N = %d)', M_set(index_m), N_set(index_n));
-        hold on;
-        semilogx(K_set, max_rates_greedy(:, index_m, index_n),"-*");
-        legendLabels{end+1} = sprintf('Max rate (with multiuser diversity) (M = %d, N = %d)', M_set(index_m), N_set(index_n));
-        hold on;
-        semilogx(K_set, max_rates_RR(:, index_m, index_n),"-+");
-        legendLabels{end+1} = sprintf('Max rate (without multiuser diversity) (M = %d, N = %d)', M_set(index_m), N_set(index_n));
-        xlim([min(K_set), max(K_set)]);
-        ylim([0, 1.2*max(max(max(max_rates_greedy(:, index_m, index_n)), max(rates_RR(:, index_m, index_n))), max(rates_greedy(:, index_m, index_n)))]);
-        title('\textbf{Average rate vs. Number of users}', 'Interpreter', 'latex');
-        xlabel('\textbf{Number of users (K)}', 'Interpreter', 'latex');
-        ylabel('\textbf{Average rate (bps/Hz)}', 'Interpreter', 'latex');
-    end
-end
-legend(legendLabels, 'Interpreter', 'latex'); 
+% figure('Color', 'w');
+% set(gca, 'XScale', 'log');
+% legendLabels = {};
+% for index_m = length(M_set)
+%     for index_n = length(N_set)
+%         hold on;
+%         semilogx(K_set, rates_RR(:, index_m, index_n), "-x");
+%         legendLabels{end+1} = sprintf('Average rate RR (M = %d, N = %d)', M_set(index_m), N_set(index_n));
+%         hold on;
+%         semilogx(K_set, rates_greedy(:, index_m, index_n),"-o");
+%         legendLabels{end+1} = sprintf('Average rate Greedy (M = %d, N = %d)', M_set(index_m), N_set(index_n));
+%         hold on;
+%         semilogx(K_set, max_rates_greedy(:, index_m, index_n),"-*");
+%         legendLabels{end+1} = sprintf('Max rate (with multiuser diversity) (M = %d, N = %d)', M_set(index_m), N_set(index_n));
+%         hold on;
+%         semilogx(K_set, max_rates_RR(:, index_m, index_n),"-+");
+%         legendLabels{end+1} = sprintf('Max rate (without multiuser diversity) (M = %d, N = %d)', M_set(index_m), N_set(index_n));
+%         xlim([min(K_set), max(K_set)]);
+%         ylim([0, 1.2*max(max(max(max_rates_greedy(:, index_m, index_n)), max(rates_RR(:, index_m, index_n))), max(rates_greedy(:, index_m, index_n)))]);
+%         title('\textbf{Average rate vs. Number of users}', 'Interpreter', 'latex');
+%         xlabel('\textbf{Number of users (K)}', 'Interpreter', 'latex');
+%         ylabel('\textbf{Average rate (bps/Hz)}', 'Interpreter', 'latex');
+%     end
+% end
+% legend(legendLabels, 'Interpreter', 'latex'); 
 
 figure('Color', 'w');
 for index_n = length(N_set)
