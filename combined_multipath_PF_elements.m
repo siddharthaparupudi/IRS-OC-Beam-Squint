@@ -9,8 +9,8 @@ L1 = 2;     % number of paths in the BS-IRS channel
 L2 = 2;     % number of paths in the IRS-user channel
 
 % carrier frequency, bandwidth, wavelength and distance between IRS elements
-f_c = 30e9;
-W = 400e6;
+f_c = 20e9;
+W = 510e6;
 lamda_c = 3e8/f_c;
 d = lamda_c/2;
 
@@ -360,7 +360,7 @@ for index = 1:length(K_set)
             rates_greedy(index, index_m, index_n) = (1/W)*avg_rate_greedy;
             rates_RR(index, index_m, index_n) = (1/W)*avg_rate_RR;
             rates_PF(index, index_m, index_n) = (1/W)*avg_rate_PF;
-            max_rates_greedy(index, index_m, index_n) = (1/W)*(1-delta)*W*log2(1+(P/(No*N))*((gain_squared_centre_RR))*((0.7498*log(K))^(1.71) + 1.1));
+            max_rates_greedy(index, index_m, index_n) = (1/W)*(1-delta)*W*log2(1+(P/(No*N))*((gain_squared_centre_RR))*((log(K) + 1.1)));
             max_rates_RR(index, index_m, index_n) = (1/W)*(1-delta)*W*log2(1+(P/(No*N))*((gain_squared_centre_RR)));
          
             gain_squared_greedy = gain_squared_greedy/(T*N);
