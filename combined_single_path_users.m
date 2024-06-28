@@ -26,7 +26,7 @@ delta = 0;
 % 1024th IRS element is at (0,276.725+1023*d)
 % users are randomly distributed in the rectangle (800,800), (800,900), (900,800), (900,900)
 % K users
-K_set = [1,3,10,31,100,316,1000];
+K_set = [1,3,10,31,100,316];
 
 rates_greedy = zeros(length(K_set),length(M_set), length(N_set));         % the average rate acheived
 rates_RR = zeros(length(K_set),length(M_set), length(N_set));             % the average rate acheived by the RR scheme
@@ -280,7 +280,7 @@ for index_m = 1:length(M_set)
             d_IRS_UE = mean(d_IRS_users);
             rates_greedy(index, index_m, index_n) = (1/W)*avg_rate_greedy;
             rates_RR(index, index_m, index_n) = (1/W)*avg_rate_RR;
-            max_rates_greedy(index, index_m, index_n) = (1/W)*(1-delta)*W*log2(1+(P/(No*N))*((gain_squared_centre_RR))*((log(K) + 1.1)));
+            max_rates_greedy(index, index_m, index_n) = (1/W)*(1-delta)*W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta*(1-epsilon))/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users)))*((log(K) + 1.1)));
             max_rates_RR(index, index_m, index_n) = (1/W)*(1-delta)*W*log2(1+(P/(No*N))*((M^2*P_alpha*P_beta*(1-epsilon))/(exp(1)*d_BS_IRS^(pathloss_BS_IRS)*d_IRS_UE^(pathloss_IRS_users))));
          
             gain_squared_greedy = gain_squared_greedy/(T*N);
